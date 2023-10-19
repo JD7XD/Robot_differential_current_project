@@ -1,0 +1,311 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="my_robot">
+
+
+    <!-- <xacro:include filename="$(find tutorial)/urdf/arm.xacro" /> -->
+    <!-- <xacro:include filename="$(find tutorial)/urdf/hokuyo.xacro" /> -->
+     <xacro:include filename="$(find tutorial)/urdf/inertial.xacro" /> 
+     <!-- <xacro:include filename="$(find tutorial)/urdf/materials.xacro" />   -->
+    <!--<xacro:include filename="$(find tutorial)/urdf/back_wheel.xacro" />-->
+    <!--<xacro:include filename="$(find tutorial)/urdf/head.xacro" />-->
+   
+    <link name="base_link">
+        <visual>
+            <geometry>
+                <box size="0.15 .2 0.05"/>
+            </geometry>
+            <material name="Orange"/>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="0.15 .2 0.05"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="30"/>
+            <origin xyz="0.0 0.0 0"/>
+            <inertia ixx="0.3" ixy="0.06" ixz="0.06" iyy="0.3" iyz="0.06" izz="1"/>
+        </inertial>
+    </link>
+    
+    
+  
+    <!-- <xacro:hokuyo_utm30lx/> -->
+
+   
+    <!--<xacro:barm prefix="b"  radius=".4"  />-->
+
+    <link name="caster_back_link">
+  <visual>
+    <origin rpy="0 0 0" xyz="0 0 0"/> k<!-- Reset the origin to the center of the sphere -->
+    <geometry>
+      <sphere radius="0.023"/>
+    </geometry>
+    <material name = "Black"/>
+  </visual>
+  <collision>
+    <origin rpy="0 0 0" xyz="0 0 0"/> <!-- Reset the origin to the center of the sphere -->
+    <geometry>
+      <sphere radius="0.023"/>
+    </geometry>
+  </collision>
+  <xacro:inertial_sphere mass="9" radius="0.021">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </xacro:inertial_sphere>
+</link>
+
+<joint name="caster_back_joint" type="fixed">
+  <parent link="base_link"/>
+  <child link="caster_back_link"/>
+  <origin xyz="-0.063 0.0 -0.025"/>
+  <dynamics damping="0.0" friction="0.0"/>
+</joint>
+
+<gazebo reference="caster_back_link">
+  <turnGravityOff>false</turnGravityOff>
+</gazebo>
+
+<!-- <xacro:arm prefix="right" length=".025" radius=".04" reflect="1" />
+    <xacro:arm prefix="left" length=".025" radius=".04" reflect="-1" /> -->
+<!--Wheels-->
+ <joint name="base_to_left_arm" type="continuous">
+        <axis xyz="0 1 0"/>
+        <parent link="base_link"/>
+        <child link="left_arm"/>
+        <origin rpy="0 0 0" xyz="0.05 -0.07 -0.009"/> <!-- move the child_frame with respect to parent_frame -->
+    </joint>
+ <link name="left_arm">
+        <visual>
+            <origin rpy="0 1.57 1.57" xyz="0 0 0"/> <!-- set the origin to 0 to recenter the link to the child_frame -->
+            <geometry>
+                <cylinder length=".025" radius=".04"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 1.57 1.57" xyz="0 0 0"/> <!-- set the origin to 0 to recenter the link to the child_frame -->
+            <geometry>
+                <cylinder length=".025" radius=".04"/>
+            </geometry>
+        </collision>
+        <xacro:inertial_cylinder mass="7" length=".025" radius=".04">
+            <origin xyz="0 0 0" rpy="1.57 1.57 0"/>
+        </xacro:inertial_cylinder>
+    </link>
+
+
+    <transmission name="left_arm_transmission">
+        <type>transmission_interface/SimpleTransmission</type>
+        <actuator name="left_motor">
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+        <joint name="base_to_left_arm">
+            <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+        </joint>
+    </transmission>
+
+  <joint name="base_to_right_arm" type="continuous">
+        <axis xyz="0 1 0"/>
+        <parent link="base_link"/>
+        <child link="right_arm"/>
+        <origin rpy="0 0 0" xyz="0.05 0.07 -0.009"/> <!-- move the child_frame with respect to parent_frame -->
+    </joint>
+
+     <link name="right_arm">
+        <visual>
+            <origin rpy="0 1.57 1.57" xyz="0 0 0"/> <!-- set the origin to 0 to recenter the link to the child_frame -->
+            <geometry>
+                <cylinder length=".025" radius=".04"/>
+            </geometry>
+        </visual>
+        <collision>
+            <origin rpy="0 1.57 1.57" xyz="0 0 0"/> <!-- set the origin to 0 to recenter the link to the child_frame -->
+            <geometry>
+                <cylinder length=".025" radius=".04"/>
+            </geometry>
+        </collision>
+        <xacro:inertial_cylinder mass="7" length=".025" radius=".04">
+            <origin xyz="0 0 0" rpy="1.57 1.57 0"/>
+        </xacro:inertial_cylinder>
+    </link>
+
+    <transmission name="right_arm_transmission">
+        <type>transmission_interface/SimpleTransmission</type>
+        <actuator name="right_motor">
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+        <joint name="base_to_right_arm">
+            <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+        </joint>
+    </transmission>
+  
+    <!--<xacro:head />-->
+    <link name="camera">
+    <visual>
+      <geometry>
+        <box size="0.01 0.02 0.008"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.01 0.02 0.008"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.021" ixy="0" ixz="0" iyy="0.027" iyz="0" izz="0.010"/>
+    </inertial>
+  </link>
+
+  <!-- Define the joint connecting camera to the base -->
+  <joint name="cam_to_base" type="fixed">
+    <origin xyz="0.06 0 0.03" rpy="0 0.08 0"/>
+    <parent link="base_link"/>
+    <child link="camera"/>
+  </joint>
+
+  <!-- Define Gazebo specific properties for the camera -->
+  
+    <gazebo reference="camera">
+  <sensor name="camerax" type="depth">
+    <update_rate>20</update_rate>
+    <visualize>false</visualize>
+    <camera>
+      <horizontal_fov>1.047198</horizontal_fov>
+      <image>
+        <width>640</width>
+        <height>480</height>
+        <format>R8G8B8</format>
+      </image>
+      <clip>
+        <near>1</near>
+        <far>10</far>
+      </clip>
+    </camera>
+    <plugin name="camera_controller" filename="libgazebo_ros_openni_kinect.so">
+      <baseline>0.2</baseline>
+      <alwaysOn>true</alwaysOn>
+      <updateRate>1.0</updateRate>
+      <cameraName>camerax_ir</cameraName>
+      <imageTopicName>/camerax/color/image_raw</imageTopicName>
+      <cameraInfoTopicName>/camerax/color/camera_info</cameraInfoTopicName>
+      <depthImageTopicName>/camerax/depth/image_raw</depthImageTopicName>
+      <depthImageInfoTopicName>/camerax/depth/camera_info</depthImageInfoTopicName>
+      <pointCloudTopicName>/camerax/depth/points</pointCloudTopicName>
+      <frameName>camera</frameName>
+      <pointCloudCutoff>0.5</pointCloudCutoff>
+      <pointCloudCutoffMax>3.0</pointCloudCutoffMax>
+      <distortionK1>0.00000001</distortionK1>
+      <distortionK2>0.00000001</distortionK2>
+      <distortionK3>0.00000001</distortionK3>
+      <distortionT1>0.00000001</distortionT1>
+      <distortionT2>0.00000001</distortionT2>
+      <CxPrime>0</CxPrime>
+      <Cx>0</Cx>
+      <Cy>0</Cy>
+      <focalLength>0</focalLength>
+      <hackBaseline>0</hackBaseline>
+    </plugin>
+  </sensor>
+</gazebo>
+
+     <link name="above_base_link">
+        <visual>
+            <geometry>
+                <box size="0.06 0.1 0.04"/>
+            </geometry>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="0.06 0.1 0.04"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.2"/>
+            <inertia ixx="0.21" ixy="0" ixz="0" iyy="0.27" iyz="0" izz="0.10"/>
+        </inertial>
+    </link>
+
+    <joint name="above_base_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="above_base_link"/>
+    <origin rpy="0 0 0" xyz="-0.04 0.0 0.04"/>
+  </joint>
+
+   
+
+<joint name="base_laser_joint" type="fixed">
+            <origin xyz="0.015 0 0.035" rpy="0 0 0" />
+            <parent link="above_base_link" />
+            <child link="base_laser" />
+        </joint>
+
+        <link name="base_laser">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <box size="0.005 0.005 0.005"/>
+                </geometry>
+               
+            </visual>
+            <inertial>
+                <mass value="0.02" />
+                <origin xyz="0 0 0" />
+                <inertia ixx="0.0001" ixy="0.0" ixz="0.0"
+                    iyy="0.0001" iyz="0.0"
+                    izz="0.0001" />
+            </inertial>
+        </link>
+        
+        <!-- Set up laser gazebo details -->
+        <gazebo reference="base_laser">
+            <sensor type="ray" name="laser">
+                <pose>0 0 0 0 0 0</pose>
+                <visualize>false</visualize>
+                <update_rate>40</update_rate>
+                <ray>
+                    <scan>
+                        <horizontal>
+                            <samples>1080</samples>
+                            <resolution>1</resolution>
+                            <min_angle>-3.14159</min_angle>
+                            <max_angle>3.14159</max_angle>
+                        </horizontal>
+                    </scan>
+                    <range>
+                        <min>0.3</min>
+                        <max>10.0</max>
+                        <resolution>0.01</resolution>
+                    </range>
+                </ray>
+                <plugin name="hokuyo_node" filename="libgazebo_ros_laser.so">
+                    <topicName>/scan</topicName>
+                    <frameName>base_laser</frameName>
+                </plugin>
+            </sensor>
+        </gazebo>
+
+
+
+  
+    <!-- Add ROS plugin so we can interact with our robot -->
+    <gazebo>
+        <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+            <robotNamespace>/</robotNamespace>
+        </plugin>
+    </gazebo>
+    <gazebo reference="display_screen_link">
+    
+  <visual>
+    <plugin name="display_video_controller" filename="libgazebo_ros_video.so">
+      <topicName>image</topicName>
+      <height>800</height>
+      <width>800</width>
+    </plugin>
+  </visual>
+</gazebo>
+<gazebo reference="base_link">
+    <material>Gazebo/Orange</material>
+  </gazebo>
+  
+</robot>
